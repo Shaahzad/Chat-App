@@ -78,7 +78,7 @@ const Handelopenupload = (e) => {
     }
 
   return (
-    <div className='fixed top-0 bottom-0 left-0 right-0 bg-gray-700 bg-opacity-50 flex justify-center items-center'>
+    <div className='fixed top-0 bottom-0 left-0 right-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-10'>
         <div className='bg-white rounded p-4 py-6 m-1 w-full max-w-sm'>
         <h2 className='font-semibold'>Profile Detail</h2>
         <p className='text-sm'>Edit user Detail</p>

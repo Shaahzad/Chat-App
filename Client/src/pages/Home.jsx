@@ -2,8 +2,9 @@ import React, { useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import axios from "axios"
 import { useDispatch, useSelector } from 'react-redux'
-import {logout, setUser} from "../redux/userslice.js"
+import {logout, setUser, setonlineuser, setsocketconnection} from "../redux/userslice.js"
 import Sidebar from '../components/Sidebar'
+import io from "socket.io-client"
 const Home = () => {
 
   const selector = useSelector((state)=>state.user)
@@ -20,7 +21,6 @@ const Home = () => {
       withCredentials : true
     })
 
-    console.log(response)
 
     dispatch(setUser(response.data.data))
 
@@ -37,6 +37,27 @@ const Home = () => {
   useEffect(()=>{
     fetchDetail()
   },[])
+
+useEffect(()=>{
+  const connection = io("http://localhost:5000",{
+    auth : {
+      token : localStorage.getItem("token")
+    }
+  })
+
+
+  connection.on("Onlineuser", (data) => {
+    console.log(data)
+    dispatch(setonlineuser(data))
+  })
+
+  dispatch(setsocketconnection(connection))
+
+ return () => {
+  connection.disconnect()
+ }
+},[])
+
 
 const basepath = location.pathname === "/"
 

@@ -3,10 +3,10 @@ import Avatar from './Avatar'
 import { Link } from 'react-router-dom'
 const Usersearchcard = ({user,onClose}) => {
   return (
-    <Link to={`/${user?._id}`} onClick={onClose} className='flex items-center gap-2 p-2  lg:p-4
+    <Link to={`/${user?._id}`} onClick={onClose} className='flex items-center gap-2 p-2   lg:p-4
      border border-transparent border-b-slate-200 hover:border hover:border-primary rounded cursor-pointer'>
         <div>
-            <Avatar width={40} height={40} name={user?.name} imageUrl={user?.profilePic}/>
+            <Avatar width={40} height={40} name={user?.name} imageUrl={user?.profilePic} userId={user?._id}/>
         </div>
         <div>
             <div className='font-semibold text-ellipsis line-clamp-1'>
