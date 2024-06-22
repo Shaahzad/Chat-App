@@ -8,6 +8,8 @@ import http from "http"
 import { Server } from "socket.io"
 import getuserDeatil from "./helper/userdetail.js"
 import UserModel from "./Models/Usermodel.js"
+import ConversationModel from "./Models/Conversation.js"
+import MessageModel from "./Models/Message.js"
 
 const app = express();
 app.use(cors({
@@ -47,7 +49,7 @@ io.on("connection", async(socket) => {
 
     const user = await getuserDeatil(token)
  
-    socket.join(user._id)
+    socket.join(user._id.toString())
     Onlineuser.add(user._id.toString())
 
     io.emit("Onlineuser",Array.from(Onlineuser))
@@ -66,6 +68,51 @@ io.on("connection", async(socket) => {
 
         socket.emit("message-user", payload)
     })
+
+    socket.on("new-message", async(data)=>{
+
+
+      let conversation =  await ConversationModel.findOne({
+        "$or" : [
+            {sender : data.sender, receiver : data.receiver},
+            {sender : data.receiver, receiver : data.sender}
+        ]
+      })
+
+      if(!conversation){
+       const createconversation =  await ConversationModel({
+            sender : data.sender,
+            receiver : data.receiver
+       })
+       conversation = await createconversation.save()
+      }
+        
+      const message = new MessageModel({
+        text : data.text,
+        imageUrl : data.imageUrl,
+        videoUrl : data.videoUrl,
+        msgbyuserId : data.msgbyuserId,
+      })
+
+      const savemessage = await message.save()
+      const updateconversation = await ConversationModel.updateOne({_id : conversation._id},{
+        "$push" : {
+            message : savemessage._id
+        }
+      })
+
+      const getConversationmessage = await ConversationModel.findOne({
+        "$or" : [
+            {sender : data.sender, receiver : data.receiver},
+            {sender : data.receiver, receiver : data.sender}
+        ]
+      }).populate("message").sort({updatedAt : -1})
+
+
+      io.to(data.sender).emit("message", getConversationmessage.message)
+      io.to(data.receiver).emit("message", getConversationmessage.message)
+    })
+
 
     socket.on("disconnect", () => {
         Onlineuser.delete(user._id)

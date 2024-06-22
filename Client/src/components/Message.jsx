@@ -8,6 +8,11 @@ import { FaPlus } from "react-icons/fa";
 import { IoImage } from "react-icons/io5";
 import { FaVideo } from "react-icons/fa6";
 import upload from '../Helper/upload';
+import { IoIosClose } from "react-icons/io";
+import Loading from "./Loading"
+import { MdOutlineSend } from "react-icons/md";
+
+
 
 
 const Message = () => {
@@ -15,6 +20,8 @@ const Message = () => {
   const socketconnection = useSelector((state)=> state.user.socketconnection)
   const user = useSelector((state)=> state.user)
   const [imagevideoshow, setImagevideoshow] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [Allmessages, setAllmessages] = useState([])
   const [message,setmessage] = useState({
     text : "",
     imageUrl : "",
@@ -35,9 +42,10 @@ const Message = () => {
 
   const Handeluploadimage = async(e) => {
     const file = e.target.files[0]
-
+    setLoading(true)
     const uploadphoto = await upload(file)
-
+    setLoading(false)
+    setImagevideoshow(false)
 
     setmessage((prev)=>{
       return{
@@ -45,15 +53,33 @@ const Message = () => {
         imageUrl : uploadphoto?.url
       }
     })
-    
+  }
 
+  const Handelclearuploadimage = () => {
+    setmessage((prev)=>{
+      return{
+        ...prev,
+        imageUrl : ""
+      }
+    })
+  }
+
+
+  const Handelclearuploadvideo = () => {
+    setmessage((prev)=>{
+      return{
+        ...prev,
+        videoUrl : ""
+      }
+    })
   }
 
   const Handeluploadvideo = async(e) => {
     const file = e.target.files[0]
-
+    setLoading(true)
     const uploadphoto = await upload(file)
-
+    setLoading(false)
+    setImagevideoshow(false)
 
     setmessage((prev)=>{
       return{
@@ -65,7 +91,6 @@ const Message = () => {
 
   }
 
-
   useEffect(() => {
      if(socketconnection){
       socketconnection.emit("message-page", params.userId)
@@ -73,10 +98,53 @@ const Message = () => {
       socketconnection.on("message-user", (data) => {
         setDatauser(data)
       })
+
+      socketconnection.on("message", (data) => {
+        console.log(data)
+
+        setAllmessages(data)
+      })
      }
   }, [socketconnection,params.userId,user])
+
+  const HandleTextChange = (e)=>{
+   const {name,value} = e.target
+
+   setmessage(prev=>{
+    return{
+      ...prev,
+      text : value
+    }
+   })
+  }
+
+  const HandleSendMessage = (e) => {
+   e.preventDefault()
+
+  if(message.text || message.imageUrl || message.videoUrl){
+    if(socketconnection){
+      socketconnection.emit("new-message", {
+        sender: user._id,
+        receiver: params.userId,
+        text : message.text,
+        imageUrl : message.imageUrl,
+        videoUrl : message.videoUrl,
+        msgbyuserId : user._id
+      })
+     setmessage({
+      text : "",
+      imageUrl : "",
+      videoUrl : ""
+     })
+    }
+  }
+  }
+
+
+
+
   return (
-    <div>
+    <div style={{backgroundImage: "url(/background.jpg)"}} className='bg-no-repeat bg-cover'>
       <header className='sticky top-0 bg-white h-16 flex justify-between items-center px-4'>
          <div className='flex items-center gap-3'>
           <Link to={"/"} className='lg:hidden'>
@@ -104,17 +172,56 @@ const Message = () => {
       </header>
 
 
-      {/* ///////show message here////////// */}
-      <section className='h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scroll'>
+      <section className='h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scroll relative bg-slate-200 bg-opacity-20'>
         {
           message.imageUrl && (
             <div className='w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center'>
+              <div className='w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-500' onClick={Handelclearuploadimage}>
+               <IoIosClose size={30}/>
+              </div>
             <div className='bg-white p-3'>
-             <img src={message.imageUrl} alt="" width={300} height={300}/>
+             <img src={message.imageUrl} className='w-full h-full max-w-sm'/>
             </div>
              </div>
           )
         }
+{
+          message.videoUrl && (
+            <div className='w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center'>
+              <div className='w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-500' onClick={Handelclearuploadvideo}>
+               <IoIosClose size={30}/>
+              </div>
+            <div className='bg-white p-3'>
+              <video src={message?.videoUrl} className='aspect-video w-full h-full max-w-sm' controls autoPlay muted>
+                 <source  src={message?.videoUrl} type='video/mp4'/>
+                 <source  src={message?.videoUrl} type='video/webm'/>
+                </video>
+            </div>
+             </div>
+          )
+        }
+
+
+        {
+          loading && (
+            <div className='w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center'>
+                <Loading/>
+            </div>
+          )
+        }
+
+
+        {/* show all messages */}
+
+        <div className='flex flex-col gap-2'>
+          {Allmessages.map((msg,index)=>{
+            return(
+              <div className='bg-white rounded p-1 py-1 w-fit '>
+                <p className='px-2'>{msg.text}</p>
+              </div>
+            )
+          })}
+        </div>
       </section>
 
       {/* ////////send message here//////// */}
@@ -127,7 +234,7 @@ const Message = () => {
         {/*video & image*/}
          {
           imagevideoshow &&(
-            <div className='bg-white shadow rounded absolute bottom-1 w-36 p-2'>
+            <div className='bg-white shadow rounded absolute bottom-12 w-36 p-2'>
             <form>
               <label htmlFor='uploadimage' className='flex items-center gap-2 p-2 hover:bg-slate-200 cursor-pointer'>
                 <div className='text-primary'>
@@ -141,8 +248,8 @@ const Message = () => {
                 </div>
                 <p>video</p>
                 </label>
-                <input type="file" id='uploadimage' onChange={Handeluploadimage}/>
-                <input type="file" id="uploadvideo" onChange={Handeluploadvideo}/>
+                <input type="file" id='uploadimage' onChange={Handeluploadimage} className='hidden'/>
+                <input type="file" id="uploadvideo" onChange={Handeluploadvideo} className='hidden'/>
             </form>
           </div>
           )
@@ -150,6 +257,21 @@ const Message = () => {
 
 
        </div>
+
+       {/* input box */}
+       <form className='w-full h-full flex gap-2' onSubmit={HandleSendMessage}>
+  <input
+    type="text"
+    placeholder='Type here message....'
+    className='py-1 px-4 outline-none w-full h-full'
+    value={message.text}
+    onChange={HandleTextChange}
+    name='text'
+  />
+  <button className='text-primary hover:text-secondary cursor-pointer'>
+    <MdOutlineSend size={25} /> 
+  </button>
+</form>
       </section>
       </div>
   )

@@ -1,5 +1,5 @@
 
-const url = `https://api.cloudinary.com/v1_1/dqeneupli/image/upload`
+const url = `https://api.cloudinary.com/v1_1/dqeneupli/auto/upload`
 
 
 const upload = async (file)=>{
