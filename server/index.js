@@ -10,6 +10,7 @@ import getuserDeatil from "./helper/userdetail.js"
 import UserModel from "./Models/Usermodel.js"
 import ConversationModel from "./Models/Conversation.js"
 import MessageModel from "./Models/Message.js"
+import getconversation from "./helper/getconversation.js"
 
 const app = express();
 app.use(cors({
@@ -49,7 +50,10 @@ io.on("connection", async(socket) => {
 
     const user = await getuserDeatil(token)
  
-    socket.join(user._id.toString())
+    if (!user) {
+        socket.join(user._id.toString())
+    }
+
     Onlineuser.add(user._id.toString())
 
     io.emit("Onlineuser",Array.from(Onlineuser))
@@ -67,7 +71,16 @@ io.on("connection", async(socket) => {
         }
 
         socket.emit("message-user", payload)
-    })
+        const getConversationmessage = await ConversationModel.findOne({
+            "$or" : [
+                {sender : user._id, receiver : userId},
+                {sender : userId, receiver : user._id}
+            ]
+          }).populate("message").sort({updatedAt : -1})
+    
+               socket.emit("message", getConversationmessage?.message || []) 
+
+      })
 
     socket.on("new-message", async(data)=>{
 
@@ -109,10 +122,54 @@ io.on("connection", async(socket) => {
       }).populate("message").sort({updatedAt : -1})
 
 
-      io.to(data.sender).emit("message", getConversationmessage.message)
-      io.to(data.receiver).emit("message", getConversationmessage.message)
+      io.to(data.sender).emit("message", getConversationmessage.message || [])
+      io.to(data.receiver).emit("message", getConversationmessage.message || [])
+
+
+      /// send conversation
+
+      const conversationsender = await getconversation(data.sender)
+      const conversationreceiver = await getconversation(data.receiver)
+
+      io.to(data.sender).emit("conversation", conversationsender)
+      io.to(data.receiver).emit("conversation", conversationreceiver)
+
+
     })
 
+    socket.on("sidebar", async(currentuserId)=>{
+        console.log(currentuserId);
+
+
+        const conversation = await getconversation(currentuserId)
+       socket.emit("conversation", conversation)    
+    })
+
+
+    socket.on("seen", async(msgbyuserId)=>{
+      
+        const conversation = await ConversationModel.findOne({
+            "$or" : [
+                {sender : user._id, receiver : msgbyuserId},
+                {sender : msgbyuserId, receiver : user._id}
+            ]
+        })
+
+        const conversationmessageId =  conversation.message || []
+        const updatemessage = await MessageModel.updateMany(
+            {_id : {$in : conversationmessageId}, msgbyuserId : msgbyuserId},
+            {"$set" : {seen : true}}
+        ) 
+
+              /// send conversation
+
+      const conversationsender = await getconversation(user._id.toString())
+      const conversationreceiver = await getconversation(msgbyuserId)
+
+      io.to(user._id.toString()).emit("conversation", conversationsender)
+      io.to(msgbyuserId).emit("conversation", conversationreceiver)
+
+    })
 
     socket.on("disconnect", () => {
         Onlineuser.delete(user._id)

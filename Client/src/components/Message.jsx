@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
 import Avatar from './Avatar'
@@ -11,6 +11,7 @@ import upload from '../Helper/upload';
 import { IoIosClose } from "react-icons/io";
 import Loading from "./Loading"
 import { MdOutlineSend } from "react-icons/md";
+import moment from "moment"
 
 
 
@@ -22,6 +23,7 @@ const Message = () => {
   const [imagevideoshow, setImagevideoshow] = useState(false)
   const [loading, setLoading] = useState(false)
   const [Allmessages, setAllmessages] = useState([])
+  const currentmessage = useRef()
   const [message,setmessage] = useState({
     text : "",
     imageUrl : "",
@@ -99,6 +101,8 @@ const Message = () => {
         setDatauser(data)
       })
 
+      socketconnection.emit("seen", params.userId)
+
       socketconnection.on("message", (data) => {
         console.log(data)
 
@@ -141,6 +145,14 @@ const Message = () => {
   }
 
 
+  useEffect(()=>{
+
+    if(currentmessage.current){
+      currentmessage.current.scrollIntoView({behavior : "smooth", block : "end"})
+    }
+
+  },[Allmessages])
+
 
 
   return (
@@ -175,7 +187,7 @@ const Message = () => {
       <section className='h-[calc(100vh-128px)] overflow-x-hidden overflow-y-scroll scroll relative bg-slate-200 bg-opacity-20'>
         {
           message.imageUrl && (
-            <div className='w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center'>
+            <div className='w-full h-full sticky bottom-0  bg-slate-700 bg-opacity-30 flex justify-center items-center'>
               <div className='w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-500' onClick={Handelclearuploadimage}>
                <IoIosClose size={30}/>
               </div>
@@ -187,7 +199,7 @@ const Message = () => {
         }
 {
           message.videoUrl && (
-            <div className='w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center'>
+            <div className='w-full h-full sticky bottom-0 bg-slate-700 bg-opacity-30 flex justify-center items-center'>
               <div className='w-fit p-2 absolute top-0 right-0 cursor-pointer hover:text-red-500' onClick={Handelclearuploadvideo}>
                <IoIosClose size={30}/>
               </div>
@@ -204,7 +216,7 @@ const Message = () => {
 
         {
           loading && (
-            <div className='w-full h-full bg-slate-700 bg-opacity-30 flex justify-center items-center'>
+            <div className='w-full h-full sticky bottom-0 bg-slate-700 bg-opacity-30 flex justify-center items-center'>
                 <Loading/>
             </div>
           )
@@ -213,11 +225,29 @@ const Message = () => {
 
         {/* show all messages */}
 
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2 py-2 mx-2'  ref={currentmessage}>
           {Allmessages.map((msg,index)=>{
             return(
-              <div className='bg-white rounded p-1 py-1 w-fit '>
+              <div className={`bg-white rounded p-1 py-1 my-2 w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${user._id === msg.msgbyuserId ? "ml-auto bg-teal-100" : ""}`}>
+                <div className='w-full'>
+                  {
+                    msg.imageUrl && (
+                      <img src={msg.imageUrl} className='w-full h-full object-scale-down' />
+                    )
+                  }
+                </div>
+                <div className='w-full'>
+                  {
+                    msg.videoUrl && (
+                      <video src={msg.videoUrl} className='w-full h-full object-scale-down' controls >
+                        <source  src={msg.videoUrl} type='video/mp4'/>
+                        <source  src={msg.videoUrl} type='video/webm'/>
+                      </video>
+                    )
+                  }
+                </div>
                 <p className='px-2'>{msg.text}</p>
+                <p className='text-xs ml-auto w-fit'>{moment(msg.createdAt).format("hh:mm")}</p>
               </div>
             )
           })}
