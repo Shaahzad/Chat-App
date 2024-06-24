@@ -96,12 +96,13 @@ const Message = () => {
   useEffect(() => {
      if(socketconnection){
       socketconnection.emit("message-page", params.userId)
+      socketconnection.emit("seen", params.userId)
+
 
       socketconnection.on("message-user", (data) => {
         setDatauser(data)
       })
 
-      socketconnection.emit("seen", params.userId)
 
       socketconnection.on("message", (data) => {
         console.log(data)
@@ -157,7 +158,7 @@ const Message = () => {
 
   return (
     <div style={{backgroundImage: "url(/background.jpg)"}} className='bg-no-repeat bg-cover'>
-      <header className='sticky top-0 bg-white h-16 flex justify-between items-center px-4'>
+      <header className='sticky bottom-0 bg-white h-16 flex justify-between items-center px-4'>
          <div className='flex items-center gap-3'>
           <Link to={"/"} className='lg:hidden'>
            <FaAngleLeft size={25}/>
@@ -228,7 +229,7 @@ const Message = () => {
         <div className='flex flex-col gap-2 py-2 mx-2'  ref={currentmessage}>
           {Allmessages.map((msg,index)=>{
             return(
-              <div className={`bg-white rounded p-1 py-1 my-2 w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${user._id === msg.msgbyuserId ? "ml-auto bg-teal-100" : ""}`}>
+              <div className={` rounded p-1 py-1 my-2 w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${user._id === msg.msgbyuserId ? "ml-auto bg-teal-100" : "bg-white"}`}>
                 <div className='w-full'>
                   {
                     msg.imageUrl && (

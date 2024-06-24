@@ -50,11 +50,9 @@ io.on("connection", async(socket) => {
 
     const user = await getuserDeatil(token)
  
-    if (!user) {
         socket.join(user._id.toString())
-    }
+        Onlineuser.add(user._id.toString())
 
-    Onlineuser.add(user._id.toString())
 
     io.emit("Onlineuser",Array.from(Onlineuser))
 
@@ -122,57 +120,52 @@ io.on("connection", async(socket) => {
       }).populate("message").sort({updatedAt : -1})
 
 
-      io.to(data.sender).emit("message", getConversationmessage.message || [])
-      io.to(data.receiver).emit("message", getConversationmessage.message || [])
+      io.to(data?.sender).emit("message", getConversationmessage?.message || [])
+      io.to(data?.receiver).emit("message", getConversationmessage?.message || [])
 
 
       /// send conversation
+      const conversationsender = await getconversation(data?.sender)
+      const conversationreceiver = await getconversation(data?.receiver)
 
-      const conversationsender = await getconversation(data.sender)
-      const conversationreceiver = await getconversation(data.receiver)
-
-      io.to(data.sender).emit("conversation", conversationsender)
-      io.to(data.receiver).emit("conversation", conversationreceiver)
+      io.to(data?.sender).emit("conversation", conversationsender)
+      io.to(data?.receiver).emit("conversation", conversationreceiver)
 
 
     })
-
+     
+    //sidebar
     socket.on("sidebar", async(currentuserId)=>{
-        console.log(currentuserId);
-
-
         const conversation = await getconversation(currentuserId)
        socket.emit("conversation", conversation)    
     })
 
 
     socket.on("seen", async(msgbyuserId)=>{
-      
-        const conversation = await ConversationModel.findOne({
+    let conversation = await ConversationModel.findOne({
             "$or" : [
-                {sender : user._id, receiver : msgbyuserId},
-                {sender : msgbyuserId, receiver : user._id}
+                {sender : user?._id, receiver : msgbyuserId},
+                {sender : msgbyuserId, receiver : user?._id}
             ]
         })
 
-        const conversationmessageId =  conversation.message || []
+        const conversationmessageId =  conversation?.message || []
         const updatemessage = await MessageModel.updateMany(
-            {_id : {$in : conversationmessageId}, msgbyuserId : msgbyuserId},
+            {_id : {"$in" : conversationmessageId}, msgbyuserId : msgbyuserId},
             {"$set" : {seen : true}}
         ) 
 
-              /// send conversation
-
-      const conversationsender = await getconversation(user._id.toString())
+        /// send conversation
+      const conversationsender = await getconversation(user?._id?.toString())
       const conversationreceiver = await getconversation(msgbyuserId)
 
-      io.to(user._id.toString()).emit("conversation", conversationsender)
+      io.to(user._id?.toString()).emit("conversation", conversationsender)
       io.to(msgbyuserId).emit("conversation", conversationreceiver)
 
     })
 
     socket.on("disconnect", () => {
-        Onlineuser.delete(user._id)
+        Onlineuser.delete(user?._id?.toString())
         console.log("Disconnected from socket.io", socket.id);
     })
 })

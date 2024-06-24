@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { IoChatbubbleEllipses } from "react-icons/io5";
 import { FaImage, FaUserPlus, FaVideo } from "react-icons/fa";
 import { IoLogOutOutline } from "react-icons/io5";
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import Avatar from "../components/Avatar"
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import EdituserDetail from './EdituserDetail';
 import { FiArrowUpLeft } from "react-icons/fi";
 import Search from './Search';
+import { logout } from '../redux/userslice';
 
 const Sidebar = () => {
     const user = useSelector((state)=>state.user)
@@ -15,6 +16,8 @@ const Sidebar = () => {
     const [Alluser, setAlluser] = useState([])
     const [opensearchuser, setOpensearchuser] = useState(false)
     const socketconnection = useSelector((state)=> state.user.socketconnection)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
 
     useEffect(()=>{
@@ -48,6 +51,13 @@ const Sidebar = () => {
         })
     }
     },[socketconnection,user])
+
+
+    const Handlelogout = () => {
+        dispatch(logout())
+        navigate('/email')
+        localStorage.clear()
+    }
   return (
     <div className='w-full h-full grid grid-cols-[48px,1fr]'>
         <div className='bg-slate-100 w-12 h-full rounded-tr-lg rounded-br-lg py-5 text-slate-600 flex flex-col justify-between'>
@@ -67,7 +77,7 @@ const Sidebar = () => {
                     <Avatar
                     width={40} height={40} name={user.name} imageUrl={user?.profilePic} userId={user._id}/>
                 </button>
-            <button title='Logout' className='cursor-pointer w-12 h-12 flex justify-center items-center hover:bg-slate-200 rounded'>
+            <button onClick={Handlelogout} title='Logout' className='cursor-pointer w-12 h-12 flex justify-center items-center hover:bg-slate-200 rounded'>
                 <IoLogOutOutline size={25}/>
             </button>
             </div>
@@ -94,7 +104,7 @@ const Sidebar = () => {
                 {
                     Alluser.map((user,index)=>{
                         return(
-                            <NavLink to={`/${user.userDetail._id}`} key={user._id} className='flex items-center gap-2 p-4 cursor-pointer border hover:bg-slate-200'>
+                            <NavLink to={`/${user?.userDetail?._id}`} key={user._id} className='flex items-center gap-2 p-4 cursor-pointer border hover:bg-slate-200'>
                            <div>
                            <Avatar imageUrl={user.userDetail.profilePic}
                            name={user.userDetail.name} userId={user.userDetail._id}
@@ -125,7 +135,11 @@ const Sidebar = () => {
                             <p className='text-ellipsis line-clamp-1'>{user.lastmessage.text}</p>
                            </div>
                            </div>
-                           <p className='text-xs ml-auto p-1 w-6 h-6 flex justify-center items-center bg-primary text-white rounded-full font-semibold'>{user.unseenmsg}</p>
+                           {
+                            Boolean(user.unseenmsg) && (
+                                <p className='text-xs ml-auto p-1 w-6 h-6 flex justify-center items-center bg-primary text-white rounded-full font-semibold'>{user.unseenmsg}</p>
+                            )
+                           }
                             </NavLink>
                         )
                     })

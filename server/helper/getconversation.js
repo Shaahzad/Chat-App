@@ -9,10 +9,11 @@ const getconversation = async(currentuserId)=>{
         }).sort({updatedAt : -1}).populate("message").populate("sender").populate("receiver")
 
         const conversation = currentuserConversation.map((conv)=>{
-            const unseenmessage = conv.message.reduce((prev,cur)=> {
-                const msdbyuserId = cur?.msgbyuserId?.toString()
-                if(msdbyuserId !== currentuserId){
-                    return prev + (cur.seen ? 0 : 1)
+            const unseenmessage = conv?.message?.reduce((prev,cur)=> {
+                const msgbyuserId = cur?.msgbyuserId?.toString()
+
+                if(msgbyuserId !== currentuserId){
+                    return prev + (cur?.seen ? 0 : 1)
                 }else{
                     return prev
                 }
