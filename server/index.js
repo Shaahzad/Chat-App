@@ -22,7 +22,7 @@ app.use(cors({
 dotenv.config();
 
 
-app.use("/test",(req,res,next)=>{
+app.use("/",(req,res,next)=>{
     res.send("hello")
 })
 
