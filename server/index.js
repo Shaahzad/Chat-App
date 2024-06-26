@@ -36,11 +36,10 @@ const connect = () => {
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: "https://chat-app-front-tan.vercel.app",
         withCredentials: true
     }
 });
-
 const Onlineuser = new Set()
 
 io.on("connection", async(socket) => {

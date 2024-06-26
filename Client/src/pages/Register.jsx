@@ -53,7 +53,7 @@ const Register = () => {
     e.stopPropagation()
     
 
-    const url = "http://localhost:5000/api/register"
+    const url = "https://chat-app-server-taupe.vercel.app/api/register"
 
     try {
       const response = await axios.post(url,data)

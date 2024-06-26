@@ -59,7 +59,7 @@ const Handelopenupload = (e) => {
          e.preventDefault()
          e.stopPropagation()
          try {
-            const url = "http://localhost:5000/api/updateuserdetail"
+            const url = "https://chat-app-server-taupe.vercel.app/api/updateuserdetail"
 
             const response = await axios({
                 method : "post",

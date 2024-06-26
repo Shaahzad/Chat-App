@@ -14,7 +14,7 @@ const Search = ({onClose}) => {
 
 
     const Handelsearch = async (e) => {
-        const url = "http://localhost:5000/api/search-user"
+        const url = "https://chat-app-server-taupe.vercel.app/api/search-user"
         setloading(true)
         try {
             const response = await axios.post(url,{
