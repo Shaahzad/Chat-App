@@ -34,7 +34,7 @@ const Checkemailpage = () => {
       e.stopPropagation()
       
   
-      const url = "https://localhost:5000/api/checkemail"
+      const url = "https://chat-app-server-zeta-liart.vercel.app/api/checkemail"
   
       try {
         const response = await axios.post(url,data)
