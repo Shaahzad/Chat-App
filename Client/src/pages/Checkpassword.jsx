@@ -39,7 +39,7 @@ const  Checkpassword = () => {
       e.stopPropagation()
       
   
-      const url = "https://chat-app-server-zeta-liart.vercel.app/api/login"
+      const url = "https://localhost:500/api/login"
 
       try {
         const response = await axios({

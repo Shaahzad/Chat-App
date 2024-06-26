@@ -59,7 +59,7 @@ const Handelopenupload = (e) => {
          e.preventDefault()
          e.stopPropagation()
          try {
-            const url = "https://chat-app-server-zeta-liart.vercel.app/api/updateuserdetail"
+            const url = "https://localhost:500/api/updateuserdetail"
 
             const response = await axios({
                 method : "post",

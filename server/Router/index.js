@@ -13,7 +13,7 @@ const router = express.Router();
 // register
 router.post("/register", registerUser)
 // check email
-router.post("/", checkEmail)
+router.post("/checkemail", checkEmail)
 // login
 router.post("/login", checkPassword)
 // get user details
