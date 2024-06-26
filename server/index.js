@@ -13,17 +13,9 @@ import MessageModel from "./Models/Message.js"
 import getconversation from "./helper/getconversation.js"
 
 
-
-app.use((req, res) => {
-    res.header("Access-Control-Allow-Origin", "https://chat-app-front-tan.vercel.app");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  });
-  
-
-
 const app = express();
 app.use(cors({
-    origin: "https://chat-app-front-tan.vercel.app",
+    origin: ["https://chat-app-front-tan.vercel.app", "http://localhost:5173"],
     credentials: true
 }))
 dotenv.config();
@@ -45,7 +37,7 @@ const connect = () => {
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "https://chat-app-front-tan.vercel.app",
+        origin: ["https://chat-app-front-tan.vercel.app", "http://localhost:5173"],
         withCredentials: true
     }
 });
