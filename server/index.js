@@ -22,6 +22,9 @@ app.use(cors({
 dotenv.config();
 
 
+app.use("/",(req,res,next)=>{
+    res.send("hello")
+})
 
 app.use(express.json());
 app.use(cookieParser());
