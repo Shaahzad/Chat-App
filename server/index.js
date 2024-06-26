@@ -16,7 +16,7 @@ import getconversation from "./helper/getconversation.js"
 
 const app = express();
 app.use(cors({
-    origin: "https://chat-app-front-tan.vercel.app/",
+    origin: "https://chat-app-front-tan.vercel.app",
     credentials: true
 }))
 dotenv.config();
