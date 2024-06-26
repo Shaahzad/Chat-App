@@ -59,7 +59,7 @@ const Handelopenupload = (e) => {
          e.preventDefault()
          e.stopPropagation()
          try {
-            const url = "https://localhost:500/api/updateuserdetail"
+            const url = "https://server-three-sable.vercel.app/api/updateuserdetail"
 
             const response = await axios({
                 method : "post",
