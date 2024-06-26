@@ -15,7 +15,7 @@ const Home = () => {
 
   const fetchDetail = async () => {    
   try {
-    const url = "https://chat-app-server-taupe.vercel.app/api/userdetail"
+    const url = "https://localhost:5000/api/userdetail"
     const response = await axios({
       url : url,
       withCredentials : true
@@ -39,7 +39,7 @@ const Home = () => {
   },[])
 
 useEffect(()=>{
-  const connection = io("https://chat-app-server-taupe.vercel.app",{
+  const connection = io("https://localhost:5000",{
     auth : {
       token : localStorage.getItem("token")
     }
