@@ -12,6 +12,15 @@ import ConversationModel from "./Models/Conversation.js"
 import MessageModel from "./Models/Message.js"
 import getconversation from "./helper/getconversation.js"
 
+
+
+app.use((req, res) => {
+    res.header("Access-Control-Allow-Origin", "https://chat-app-front-tan.vercel.app");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  });
+  
+
+
 const app = express();
 app.use(cors({
     origin: "https://chat-app-front-tan.vercel.app",
