@@ -13,6 +13,7 @@ import MessageModel from "./Models/Message.js"
 import getconversation from "./helper/getconversation.js"
 
 
+
 const app = express();
 app.use(cors({
     origin: ["https://chat-app-front-tan.vercel.app", "http://localhost:5173"],
@@ -27,6 +28,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/api", userrouter)
 
+
+app.use("/", (req, res) => {
+    res.send("hello world")
+})
 const connect = () => {
     mongoose.connect(process.env.MONGO_URL).then(() => {
         console.log("Database connected");
