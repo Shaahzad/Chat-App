@@ -45,7 +45,7 @@ const connect = () => {
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "https://chat-app-front-tan.vercel.app/socket.io",
+        origin: "https://chat-app-front-tan.vercel.app",
         withCredentials: true
     }
 });
