@@ -10,7 +10,6 @@ import Forgotpassword from "../pages/Forgotpassword.jsx"
 import { useSelector } from "react-redux"
 
 const user = useSelector((state)=> state.user)
-
 const router = createBrowserRouter([
 
     {
@@ -26,7 +25,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "email",
-                element: <Authlayout>{user ? <Checkemailpage/> : <Home/>}</Authlayout>
+                element: <Authlayout><Checkemailpage/></Authlayout>
             },
             {
                 path: "password",
