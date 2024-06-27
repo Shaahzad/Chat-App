@@ -39,7 +39,7 @@ const Home = () => {
   },[])
 
 useEffect(()=>{
-  const connection = io("https://server-three-sable.vercel.app/socket.io",{
+  const connection = io("https://server-three-sable.vercel.app",{
     auth : {
       token : localStorage.getItem("token")
     }
