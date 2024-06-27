@@ -17,6 +17,8 @@ import getconversation from "./helper/getconversation.js"
 const app = express();
 app.use(cors({
     origin: "https://chat-app-front-tan.vercel.app",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
 }))
 dotenv.config();
@@ -45,7 +47,8 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "https://chat-app-front-tan.vercel.app/socket.io",
-        withCredentials: true
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 const Onlineuser = new Set()
